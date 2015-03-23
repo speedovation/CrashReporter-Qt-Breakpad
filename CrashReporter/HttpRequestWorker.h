@@ -1,17 +1,19 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2015 Speedovation
+** Copyright (C) 2015 creativepulse.gr 
 ** Contact: Speedovation Lab (info@speedovation.com)
 **
 ** KineticWing IDE CrashHandler
 ** http:// kineticwing.com
 ** This file is part of the core classes of the KiWi Editor (IDE)
 **
-** Author: Yash Bhardwaj
+** Author: creativepulse.gr
 ** License : Apache License 2.0
 **
 ** All rights are reserved.
 */
+
 
 
 #ifndef HTTPREQUESTWORKER_H
