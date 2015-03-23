@@ -61,8 +61,8 @@ void CrashReporterWidget::on_btnSendReport_clicked()
 
     HttpRequestInput input(url_str, "POST");
 
-    input.add_var( "BuildID", BUILD_ID );
-    input.add_var( "ProductName", VER_PRODUCTNAME_STR );
+    input.add_var( "build-id", BUILD_ID );
+    input.add_var( "product-name", VER_PRODUCTNAME_STR );
     input.add_var( "version", VER_FILEVERSION_STR );
 
 
@@ -70,7 +70,7 @@ void CrashReporterWidget::on_btnSendReport_clicked()
     input.add_var( "desc", ui->desc->toPlainText() );
 
 
-    input.add_file("dmpFile", _dmpPath, NULL, "binary/octet-stream");
+    input.add_file("dmp-file", _dmpPath, NULL, "binary/octet-stream");
 
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker*)), this, SLOT(handle_result(HttpRequestWorker*)));
@@ -89,8 +89,13 @@ void CrashReporterWidget::handle_result(HttpRequestWorker *worker) {
     }
     else {
         // an error occurred
-        msg = "Error: " + worker->error_str;
+        msg = "Error: " + worker->error_str + worker->response;
     }
 
-    QMessageBox::information(this, "", msg);
+    qDebug() << msg;
+}
+
+void CrashReporterWidget::on_btnCancel_clicked()
+{
+    qApp->quit();
 }

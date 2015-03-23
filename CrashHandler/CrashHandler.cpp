@@ -101,8 +101,8 @@ namespace CrashManager
 
     GlobalHandlerPrivate::GlobalHandlerPrivate()
     {
-        std::string path = QString::fromAscii("").toStdString();
-        handler_ = new google_breakpad::ExceptionHandler(/*DumpPath*/ path, /*FilterCallback*/ 0, DumpCallback, /*context*/ 0, true, 0);
+
+        //handler_ = new google_breakpad::ExceptionHandler(/*DumpPath*/ "", /*FilterCallback*/ 0, DumpCallback, /*context*/ 0, true, 0);
     }
 
     GlobalHandlerPrivate::~GlobalHandlerPrivate()
@@ -147,7 +147,7 @@ namespace CrashManager
 #if defined(Q_OS_WIN32)
         d->handler_->set_dump_path(absPath.toStdWString());
 #else
-        d->handler_->set_dump_path(absPath.toStdString());
+       /// d->handler_->set_dump_path(absPath.toStdString());
 #endif
     }
 

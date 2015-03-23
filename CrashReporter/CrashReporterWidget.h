@@ -42,6 +42,8 @@ class CrashReporterWidget : public QWidget
         void on_btnSendReport_clicked();
         void handle_result(HttpRequestWorker *worker);
 
+        void on_btnCancel_clicked();
+
     private:
         Ui::CrashReporterWidget *ui;
 
