@@ -5,9 +5,11 @@
 INCLUDEPATH += $$PWD $$PWD/breakpad $$PWD/breakpad/src $$PWD/CrashHandler
 
 HEADERS += \
+    $$PWD/CrashHandler/CrashHandler.h
    
 
 SOURCES += \
+    $$PWD/CrashHandler/CrashHandler.cpp
     
 
 
