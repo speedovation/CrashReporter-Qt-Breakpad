@@ -1,4 +1,4 @@
-https://img.shields.io/badge/Release-Not%20ready-yellow.svg
+[![](https://img.shields.io/badge/Release-Not%20ready-yellow.svg?style=flat-square)](http://kineticwing.com)
 
 # CrashReporter for Qt Apps 
 After getting frustated to get crash reporter (or with proper license). I decided to create one. This is result.
