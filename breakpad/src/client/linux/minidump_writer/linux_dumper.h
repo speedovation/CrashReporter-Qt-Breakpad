@@ -47,6 +47,7 @@
 #include "client/linux/dump_writer_common/mapping_info.h"
 #include "client/linux/dump_writer_common/thread_info.h"
 #include "common/memory.h"
+#include "common/linux/typeof.h"
 #include "google_breakpad/common/minidump_format.h"
 
 namespace google_breakpad {
@@ -58,7 +59,7 @@ typedef Elf32_auxv_t elf_aux_entry;
 typedef Elf64_auxv_t elf_aux_entry;
 #endif
 
-typedef typeof(((elf_aux_entry*) 0)->a_un.a_val) elf_aux_val_t;
+typedef TYPEOF(((elf_aux_entry*) 0)->a_un.a_val) elf_aux_val_t;
 
 // When we find the VDSO mapping in the process's address space, this
 // is the name we use for it when writing it to the minidump.

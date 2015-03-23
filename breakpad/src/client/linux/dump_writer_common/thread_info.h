@@ -35,12 +35,13 @@
 
 #include "client/linux/dump_writer_common/raw_context_cpu.h"
 #include "common/memory.h"
+#include "common/linux/typeof.h"
 #include "google_breakpad/common/minidump_format.h"
 
 namespace google_breakpad {
 
 #if defined(__i386) || defined(__x86_64)
-typedef typeof(((struct user*) 0)->u_debugreg[0]) debugreg_t;
+typedef TYPEOF(((struct user*) 0)->u_debugreg[0]) debugreg_t;
 #endif
 
 // We produce one of these structures for each thread in the crashed process.
