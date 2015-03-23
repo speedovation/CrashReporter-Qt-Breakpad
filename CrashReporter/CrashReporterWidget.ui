@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>473</width>
-    <height>416</height>
+    <width>452</width>
+    <height>363</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <string notr="true"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0" colspan="3">
+   <item row="5" column="0" colspan="3">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>In some cases, we would like to receive more information to resove the problem. We will use below email to contact you.</string>
@@ -27,7 +27,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="3">
+   <item row="4" column="0" colspan="3">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>&lt;strong&gt;KineticWing&lt;/strong&gt; had a problem and &lt;strong&gt;crashed&lt;/strong&gt;. We'll try to restore your last session when it restarts.</string>
@@ -37,34 +37,21 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="3">
+   <item row="7" column="0" colspan="3">
     <widget class="QPlainTextEdit" name="desc">
      <property name="placeholderText">
       <string>A detailed explanation of what you were doing when crashed (Optional)</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="3">
+   <item row="6" column="0" colspan="3">
     <widget class="QLineEdit" name="email">
      <property name="placeholderText">
       <string>Enter your email (Optional)</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="3">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>&lt;strong&gt;We're Sorry&lt;/strong&gt;  :-(</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="3">
+   <item row="8" column="0" colspan="3">
     <widget class="QWidget" name="widget" native="true">
      <property name="minimumSize">
       <size>
@@ -118,29 +105,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btnCreateIssue">
-        <property name="text">
-         <string>Create Issue</string>
-        </property>
-        <property name="default">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="btnSendReport">
         <property name="text">
          <string>Send report</string>
         </property>
         <property name="flat">
          <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnRestart">
-        <property name="text">
-         <string>Restart</string>
         </property>
        </widget>
       </item>
@@ -153,6 +123,43 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>&lt;strong&gt;We're Sorry&lt;/strong&gt;  :-(</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnRestart">
+       <property name="text">
+        <string>Restart</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

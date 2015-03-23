@@ -13,12 +13,17 @@ Under dev. Not ready yet. Soon it will be. Stay tuned.
 #Working
 * Crash reporter features like send report, create issue.
 
+## Finished
+* Crash reporter
+* Server side done. Dmp file upload and send mail is also done.
 
 ## TODO
 * Examples
 * Handler
 * Add screenshots
+* Share web server code for uploading dmp file and send mail to developers
 * Any WIKI page about how easy to use breakpad with Qt.
+* Enable create issue button in crash reporter
 
 # License
 * Apache 2.0 license

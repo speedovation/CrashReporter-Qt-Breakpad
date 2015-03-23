@@ -20,12 +20,12 @@ int main(int argc, char *argv[])
 
     if ( a.arguments().size() != 2 )
     {
-        QMessageBox::warning(&w, "Invalid Startup Problem" , ".dmp file path is required as argument" );
+        qDebug() << "Invalid Startup Problem" << ".dmp file path is required as argument" ;
         return 101;
      }
 
 
-    qDebug() << "Arg path" << a.arguments().first();
+//    qDebug() << "Arg path" << a.arguments().first();
 
     w.setDmpPath( a.arguments().first() );
 

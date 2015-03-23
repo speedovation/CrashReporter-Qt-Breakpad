@@ -26,7 +26,7 @@
 CrashReporterWidget::CrashReporterWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CrashReporterWidget),
-    movie(":/animation/animation/loader.gif")
+    movie(":/animation/animation/350.GIF")
 {
     ui->setupUi(this);
 
@@ -38,11 +38,11 @@ CrashReporterWidget::CrashReporterWidget(QWidget *parent) :
 
     ui->loader->hide();
 
-    setWindowTitle(VER_PRODUCTNAME_STR);
+    setWindowTitle(VER_PRODUCTNAME_STR  " CrashReporter");
 
     // TODO in future we can do something about it
     // for now hide it
-    ui->btnCreateIssue->hide();
+    //ui->btnCreateIssue->hide();
 
 }
 
@@ -93,6 +93,7 @@ void CrashReporterWidget::on_btnSendReport_clicked()
 
     ui->loader->show();
     ui->info->setText("Sending...");
+    ui->btnSendReport->setEnabled(false);
 
 }
 
@@ -114,6 +115,7 @@ void CrashReporterWidget::handle_result(HttpRequestWorker *worker) {
         msg = "Error: " + worker->error_str + worker->response;
 
         ui->info->setText("Sending failed.");
+        ui->btnSendReport->setEnabled(true);
     }
 
     ui->loader->hide();
@@ -128,5 +130,10 @@ void CrashReporterWidget::on_btnCancel_clicked()
 
 void CrashReporterWidget::on_btnRestart_clicked()
 {
-    QProcess::execute("KiWi");
+//    int n = QProcess::execute("KiWi");
+//    qDebug() << "n" << n;
+
+    QProcess p;
+
+    p.startDetached("KiWi");
 }
