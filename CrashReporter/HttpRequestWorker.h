@@ -83,4 +83,3 @@ class HttpRequestWorker : public QObject {
 };
 
 #endif // HTTPREQUESTWORKER_H
-#endif // HTTPREQUESTWORKER_H

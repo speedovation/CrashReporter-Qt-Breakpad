@@ -16,7 +16,7 @@
 
 QT += core widgets gui sql network uitools concurrent
 
-TARGET = CrashHandler
+TARGET = KiWiCrashReporter
 VERSION = 2.0.8
 TEMPLATE = app
 
@@ -68,7 +68,7 @@ QMAKE_LFLAGS +=  -std=c++11
 SOURCES += \
     main.cpp\
      $$PWD/CrashReporterWidget.cpp \
-    HttpRequestWorker.cpp
+    HttpRequestWorker.cpp \
 
 HEADERS  += \
     $$PWD/../../../version.h \

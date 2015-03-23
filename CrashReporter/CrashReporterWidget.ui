@@ -6,65 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>675</width>
-    <height>375</height>
+    <width>473</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>KineticWing IDE</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="0" colspan="2">
-    <widget class="QLineEdit" name="lineEdit">
-     <property name="placeholderText">
-      <string>Enter your email (Optional)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QPlainTextEdit" name="plainTextEdit">
-     <property name="placeholderText">
-      <string>A detailed explanation of what you were doing when crashed (Optional)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" rowspan="2">
-    <widget class="QLabel" name="label_4">
-     <property name="minimumSize">
-      <size>
-       <width>250</width>
-       <height>100</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>We're Sorry</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>KineticWing had a problem and crashed. We'll try to restore your last session when it restarts.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
+   <item row="2" column="0" colspan="3">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>In some cases, we would like to receive more information to resove the problem. We will use below email to contact you.</string>
@@ -74,7 +27,44 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
+   <item row="1" column="0" colspan="3">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>&lt;strong&gt;KineticWing&lt;/strong&gt; had a problem and &lt;strong&gt;crashed&lt;/strong&gt;. We'll try to restore your last session when it restarts.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <widget class="QPlainTextEdit" name="desc">
+     <property name="placeholderText">
+      <string>A detailed explanation of what you were doing when crashed (Optional)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QLineEdit" name="email">
+     <property name="placeholderText">
+      <string>Enter your email (Optional)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;strong&gt;We're Sorry&lt;/strong&gt;  :-(</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="3">
     <widget class="QWidget" name="widget" native="true">
      <property name="minimumSize">
       <size>
@@ -109,9 +99,12 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="btnCreateIssue">
         <property name="text">
          <string>Create Issue</string>
+        </property>
+        <property name="default">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -120,10 +113,13 @@
         <property name="text">
          <string>Send report</string>
         </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="btnCancel">
         <property name="text">
          <string>Cancel</string>
         </property>

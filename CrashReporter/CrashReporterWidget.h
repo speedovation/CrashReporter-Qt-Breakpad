@@ -33,6 +33,8 @@ class CrashReporterWidget : public QWidget
         explicit CrashReporterWidget(QWidget *parent = 0);
         ~CrashReporterWidget();
 
+        void setDmpPath(const QString& path);
+
     protected:
         void changeEvent(QEvent *e);
 
@@ -42,6 +44,8 @@ class CrashReporterWidget : public QWidget
 
     private:
         Ui::CrashReporterWidget *ui;
+
+        QString _dmpPath;
 };
 
 #endif // CRASHREPORTERWIDGET_H

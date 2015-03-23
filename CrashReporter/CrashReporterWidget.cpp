@@ -17,17 +17,28 @@
 #include "ui_CrashReporterWidget.h"
 
 #include <QNetworkReply>
+#include <QMessageBox>
+
+#include "../../version.h"
 
 CrashReporterWidget::CrashReporterWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CrashReporterWidget)
 {
     ui->setupUi(this);
+
+    setWindowTitle(VER_PRODUCTNAME_STR);
+
 }
 
 CrashReporterWidget::~CrashReporterWidget()
 {
     delete ui;
+}
+
+void CrashReporterWidget::setDmpPath(const QString& path)
+{
+    _dmpPath = path;
 }
 
 void CrashReporterWidget::changeEvent(QEvent *e)
@@ -46,15 +57,20 @@ void CrashReporterWidget::on_btnSendReport_clicked()
 {
     // trigger the request - see the examples in the following sections
 
-    QString url_str = "http://www.example.com/path/to/page.php";
+    QString url_str = CRASHREPORTER_SUBMIT_URL;
 
     HttpRequestInput input(url_str, "POST");
 
-    input.add_var("key1", "value1");
-    input.add_var("key2", "value2");
+    input.add_var( "BuildID", BUILD_ID );
+    input.add_var( "ProductName", VER_PRODUCTNAME_STR );
+    input.add_var( "version", VER_FILEVERSION_STR );
 
-    input.add_file("file1", "/path/to/file1.png", NULL, "image/png");
-    input.add_file("file2", "/path/to/file2.png", NULL, "image/png");
+
+    input.add_var( "email", ui->email->text() );
+    input.add_var( "desc", ui->desc->toPlainText() );
+
+
+    input.add_file("dmpFile", _dmpPath, NULL, "binary/octet-stream");
 
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker*)), this, SLOT(handle_result(HttpRequestWorker*)));
