@@ -1,4 +1,6 @@
-# CrashRepoter for Qt Apps 
+https://img.shields.io/badge/Release-Not%20ready-yellow.svg
+
+# CrashReporter for Qt Apps 
 After getting frustated to get crash reporter (or with proper license). I decided to create one. This is result.
 
 Under dev. Not ready yet. Soon it will be. Stay tuned.
