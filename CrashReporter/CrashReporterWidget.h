@@ -18,6 +18,7 @@
 #define CRASHREPORTERWIDGET_H
 
 #include <QtWidgets/QWidget>
+#include <QMovie>
 
 #include "HttpRequestWorker.h"
 
@@ -44,10 +45,13 @@ class CrashReporterWidget : public QWidget
 
         void on_btnCancel_clicked();
 
+        void on_btnRestart_clicked();
+
     private:
         Ui::CrashReporterWidget *ui;
 
         QString _dmpPath;
+        QMovie movie;
 };
 
 #endif // CRASHREPORTERWIDGET_H

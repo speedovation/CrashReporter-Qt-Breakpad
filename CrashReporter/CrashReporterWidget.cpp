@@ -18,16 +18,31 @@
 
 #include <QNetworkReply>
 #include <QMessageBox>
+#include <QProcess>
+
 
 #include "../../version.h"
 
 CrashReporterWidget::CrashReporterWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CrashReporterWidget)
+    ui(new Ui::CrashReporterWidget),
+    movie(":/animation/animation/loader.gif")
 {
     ui->setupUi(this);
 
+    ui->loader->clear();
+    ui->info->clear();
+
+    ui->loader->setMovie (&movie);
+    movie.start ();
+
+    ui->loader->hide();
+
     setWindowTitle(VER_PRODUCTNAME_STR);
+
+    // TODO in future we can do something about it
+    // for now hide it
+    ui->btnCreateIssue->hide();
 
 }
 
@@ -76,6 +91,9 @@ void CrashReporterWidget::on_btnSendReport_clicked()
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker*)), this, SLOT(handle_result(HttpRequestWorker*)));
     worker->execute(&input);
 
+    ui->loader->show();
+    ui->info->setText("Sending...");
+
 }
 
 
@@ -86,11 +104,19 @@ void CrashReporterWidget::handle_result(HttpRequestWorker *worker) {
     if (worker->error_type == QNetworkReply::NoError) {
         // communication was successful
         msg = "Success - Response: " + worker->response;
+
+        ui->info->setText("Report submitted successfully");
+        ui->btnSendReport->hide();
+
     }
     else {
         // an error occurred
         msg = "Error: " + worker->error_str + worker->response;
+
+        ui->info->setText("Sending failed.");
     }
+
+    ui->loader->hide();
 
     qDebug() << msg;
 }
@@ -98,4 +124,9 @@ void CrashReporterWidget::handle_result(HttpRequestWorker *worker) {
 void CrashReporterWidget::on_btnCancel_clicked()
 {
     qApp->quit();
+}
+
+void CrashReporterWidget::on_btnRestart_clicked()
+{
+    QProcess::execute("KiWi");
 }
