@@ -100,5 +100,8 @@ unix:SOURCES += $$PWD/breakpad/src/common/convert_UTF.c
 #breakpad app need debug info inside binaries
 unix:QMAKE_CXXFLAGS+=-g
 
+DISTFILES += \
+    $$PWD/README.md
+
 
 
