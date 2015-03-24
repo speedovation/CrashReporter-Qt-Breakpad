@@ -19,7 +19,7 @@
 #include <QNetworkReply>
 #include <QMessageBox>
 #include <QProcess>
-
+#include <QDesktopWidget>
 
 #include "../../version.h"
 
@@ -43,6 +43,21 @@ CrashReporterWidget::CrashReporterWidget(QWidget *parent) :
     // TODO in future we can do something about it
     // for now hide it
     //ui->btnCreateIssue->hide();
+
+
+    //Move the dialog away from the center
+    setGeometry(0,0,this->width(),this->height());
+    int i = 0;
+    if ( qApp->desktop()->screenCount() > 1 )
+    {
+        i = qApp->desktop()->screenNumber(this) ;
+    }
+
+    //Put the dialog in the screen center
+    const QRect screen = qApp->desktop()->screenGeometry(i);
+    move( screen.center() - rect().center() );
+
+    setWindowFlags(Qt::WindowStaysOnTopHint);
 
 }
 
@@ -130,11 +145,8 @@ void CrashReporterWidget::on_btnCancel_clicked()
 
 void CrashReporterWidget::on_btnRestart_clicked()
 {
-//    int n = QProcess::execute("./KiWi");
-//    qDebug() << "n" << n;
 
     QProcess p;
-
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     p.startDetached("./KiWi");
@@ -142,7 +154,6 @@ void CrashReporterWidget::on_btnRestart_clicked()
     p.startDetached("KiWi.exe");
 #endif
 
-
-
     qApp->quit();
+
 }
