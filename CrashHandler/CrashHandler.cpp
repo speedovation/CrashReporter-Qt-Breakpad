@@ -36,6 +36,8 @@
 #include <QtCore/QCoreApplication>
 #include <QString>
 
+#include "../../version.h"
+
 #if defined(Q_OS_MAC)
 
 #include "client/mac/handler/exception_handler.h"
@@ -88,7 +90,7 @@ namespace CrashManager
     /* DumpCallback                                                         */
     /************************************************************************/
 
-    bool launcher(const char* program, const char* const arguments[])
+    bool launcher(const char* program, const char* path)
     {
         // TODO launcher
     //	if(!GlobalHandlerPrivate::reporter_.isEmpty()) {
@@ -159,7 +161,10 @@ namespace CrashManager
 
     #else
         //FOR LINUX and MAC
-        char* programPath = "/bin/bash";
+//        char* programPath = "/bin/bash";
+
+        std::cout << "path: " << CrashHandlerPrivate::pHandler->minidump_descriptor().path()
+                  << "__"   << CrashHandlerPrivate::reporter_;
 
         pid_t pid = fork(); /* Create a child process */
 
@@ -168,9 +173,14 @@ namespace CrashManager
                 std::cerr << "Uh-Oh! fork() failed.\n";
                 exit(1);
             case 0: /* Child process */
-                execl(programPath, NULL); /* Execute the program */
-                std::cerr << "Uh-Oh! execl() failed!"; /* execl doesn't return unless there's an error */
-                exit(1);
+
+                 //execve(CrashHandlerPrivate::reporter_, "", NULL);
+
+                execl(CrashHandlerPrivate::reporter_,CrashHandlerPrivate::reporter_, CrashHandlerPrivate::pHandler->minidump_descriptor().path(),(char*) 0 ); /* Execute the program */
+                std::cerr << "Uh-Oh! execl() failed!";
+                /* execl doesn't return unless there's an error */
+                qApp->quit();
+                //exit(1);
             default: /* Parent process */
                 std::cout << "Process created with pid " << pid << "\n";
                 int status;
@@ -188,7 +198,7 @@ namespace CrashManager
 
 
            Q_UNUSED(program);
-           Q_UNUSED(arguments);
+           Q_UNUSED(path);
            return false;
     }
 
@@ -216,6 +226,11 @@ namespace CrashManager
         NO STACK USE, NO HEAP USE THERE !!!
         Creating QString's, using qDebug, etc. - everything is crash-unfriendly.
         */
+
+
+        launcher(CrashHandlerPrivate::reporter_,{CrashHandlerPrivate::pHandler->minidump_descriptor().path()});
+
+
         return CrashHandlerPrivate::bReportCrashesToSystem ? success : true;
     }
 
@@ -258,6 +273,9 @@ namespace CrashManager
             NULL
             );
 #endif
+
+
+
     }
 
     /************************************************************************/
@@ -298,6 +316,8 @@ namespace CrashManager
     void CrashHandler::Init( const QString& reportPath )
     {
         d->InitCrashHandler(reportPath);
+
+        setReporter(CRASHREPORTER_EXECUTABLE);
     }
 
     void CrashHandler::setReporter(const QString& reporter)
