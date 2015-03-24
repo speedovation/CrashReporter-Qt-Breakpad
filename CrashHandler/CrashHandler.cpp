@@ -1,10 +1,5 @@
 /****************************************************************************
 **
-** Original Author :  Aleksey Palazhchenk
-** Copyright (C) 2009, Aleksey Palazhchenk  BSD 2-Clause License
-**
-** Modifications
-**
 ** Copyright (C) 2007-2015 Speedovation
 ** Contact: Speedovation Lab (info@speedovation.com)
 **
@@ -16,6 +11,13 @@
 ** License : Apache License 2.0
 **
 ** All rights are reserved.
+**
+** Work is based on
+**   1. https://blog.inventic.eu/2012/08/qt-and-google-breakpad/
+**   2. https://github.com/AlekSi/breakpad-qt - Aleksey Palazhchenko, BSD-2 License
+**   3. http://www.cplusplus.com/forum/lounge/17684/
+**   4. http://www.cplusplus.com/forum/beginner/48283/
+**
 */
 
 #include "CrashHandler.h"
@@ -25,17 +27,33 @@
 #include <QtCore/QCoreApplication>
 
 #include <QString>
+#include <iostream>
 
+
+#include "CrashHandler.h"
+#include <QtCore/QDir>
+#include <QtCore/QProcess>
+#include <QtCore/QCoreApplication>
+#include <QString>
 
 #if defined(Q_OS_MAC)
+
 #include "client/mac/handler/exception_handler.h"
+
 #elif defined(Q_OS_LINUX)
+
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "client/linux/handler/exception_handler.h"
+
 #elif defined(Q_OS_WIN32)
+
 #include "client/windows/handler/exception_handler.h"
+
 #endif
 
-namespace Breakpad {
+namespace CrashManager
+{
     /************************************************************************/
     /* CrashHandlerPrivate                                                  */
     /************************************************************************/
@@ -55,18 +73,134 @@ namespace Breakpad {
         void InitCrashHandler(const QString& dumpPath);
         static google_breakpad::ExceptionHandler* pHandler;
         static bool bReportCrashesToSystem;
+
+        static char reporter_[1024];
+        static char reporterArguments_[8*1024];
+
     };
 
     google_breakpad::ExceptionHandler* CrashHandlerPrivate::pHandler = NULL;
     bool CrashHandlerPrivate::bReportCrashesToSystem = false;
+    char CrashHandlerPrivate::reporter_[1024] = {0};
+    char CrashHandlerPrivate::reporterArguments_[8*1024] = {0};
 
     /************************************************************************/
     /* DumpCallback                                                         */
     /************************************************************************/
+
+    bool launcher(const char* program, const char* const arguments[])
+    {
+        // TODO launcher
+    //	if(!GlobalHandlerPrivate::reporter_.isEmpty()) {
+    //		QProcess::startDetached(GlobalHandlerPrivate::reporter_);	// very likely we will die there
+    //	}
+
+
+        //LINUX and WIN Ref : http://www.cplusplus.com/forum/lounge/17684/
+
+   #ifdef Q_OS_WIN
+        //Ref : http://www.cplusplus.com/forum/beginner/48283/
+
+        STARTUPINFO si = {};
+           si.cb = sizeof si;
+
+           PROCESS_INFORMATION pi = {};
+           const TCHAR* target = _T("c:\\WINDOWS\\system32\\calc.exe");
+
+           if ( !CreateProcess(target, 0, 0, FALSE, 0, 0, 0, 0, &si, &pi) )
+           {
+               cerr << "CreateProcess failed (" << GetLastError() << ").\n";
+           }
+           else
+           {
+               cout << "Waiting on process for 5 seconds.." << endl;
+               WaitForSingleObject(pi.hProcess, 5 * 1000);
+               /*
+               if ( TerminateProcess(pi.hProcess, 0) ) // Evil
+                   cout << "Process terminated!";
+               */
+               if ( PostThreadMessage(pi.dwThreadId, WM_QUIT, 0, 0) ) // Good
+                   cout << "Request to terminate process has been sent!";
+
+               CloseHandle(pi.hProcess);
+               CloseHandle(pi.hThread);
+           }
+
+           cin.sync();
+           cin.ignore();
+
+
+           //ALSO
+
+           LPCTSTR lpApplicationName = "C:/Windows/System32/cmd.exe"; /* The program to be executed */
+
+           LPSTARTUPINFO lpStartupInfo;
+           LPPROCESS_INFORMATION lpProcessInfo;
+
+           memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
+           memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
+
+           /* Create the process */
+           if (!CreateProcess(lpApplicationName,
+                              NULL, NULL, NULL,
+                              NULL, NULL, NULL, NULL,
+                              lpStartupInfo,
+                              lpProcessInformation
+                             )
+              ) {
+               std::cerr << "Uh-Oh! CreateProcess() failed to start program \"" << lpApplicationName << "\"\n";
+               exit(1);
+           }
+
+           std::cout << "Started program \"" << lpApplicationName << "\" successfully\n";
+
+
+
+
+    #else
+        //FOR LINUX and MAC
+        char* programPath = "/bin/bash";
+
+        pid_t pid = fork(); /* Create a child process */
+
+        switch (pid) {
+            case -1: /* Error */
+                std::cerr << "Uh-Oh! fork() failed.\n";
+                exit(1);
+            case 0: /* Child process */
+                execl(programPath, NULL); /* Execute the program */
+                std::cerr << "Uh-Oh! execl() failed!"; /* execl doesn't return unless there's an error */
+                exit(1);
+            default: /* Parent process */
+                std::cout << "Process created with pid " << pid << "\n";
+                int status;
+
+                while (!WIFEXITED(status)) {
+                    waitpid(pid, &status, 0); /* Wait for the process to complete */
+                }
+
+                std::cout << "Process exited with " << WEXITSTATUS(status) << "\n";
+
+                return 0;
+        }
+
+    #endif
+
+
+           Q_UNUSED(program);
+           Q_UNUSED(arguments);
+           return false;
+    }
+
+
+
+
 #if defined(Q_OS_WIN32)
     bool DumpCallback(const wchar_t* _dump_dir,const wchar_t* _minidump_id,void* context,EXCEPTION_POINTERS* exinfo,MDRawAssertionInfo* assertion,bool success)
 #elif defined(Q_OS_LINUX)
     bool DumpCallback(const google_breakpad::MinidumpDescriptor &md,void *context, bool success)
+#elif defined(Q_OS_MAC)
+    bool DumpCallback(const char* _dump_dir,const char* _minidump_id,void *context, bool success)
 #endif
     {
         Q_UNUSED(context);
@@ -87,10 +221,9 @@ namespace Breakpad {
 
     void CrashHandlerPrivate::InitCrashHandler(const QString& dumpPath)
     {
+        //if already init then skip rest
         if ( pHandler != NULL )
             return;
-
-         google_breakpad::ExceptionHandler()
 
 #if defined(Q_OS_WIN32)
         std::wstring pathAsStr = (const wchar_t*)dumpPath.utf16();
@@ -112,6 +245,17 @@ namespace Breakpad {
             /*context*/ 0,
             true,
             -1
+            );
+#elif defined(Q_OS_MAC)
+        std::string pathAsStr = dumpPath.toStdString();
+        pHandler = new google_breakpad::ExceptionHandler(
+            pathAsStr,
+            /*FilterCallback*/ 0,
+            DumpCallback,
+            /*context*/
+            0,
+            true,
+            NULL
             );
 #endif
     }
@@ -144,7 +288,7 @@ namespace Breakpad {
     {
         bool res = d->pHandler->WriteMinidump();
         if (res) {
-            qDebug("BreakpadQt: writeMinidump() success.");
+            qDebug("BreakpadQt: writeMinidump() successed.");
         } else {
             qWarning("BreakpadQt: writeMinidump() failed.");
         }
@@ -155,4 +299,39 @@ namespace Breakpad {
     {
         d->InitCrashHandler(reportPath);
     }
+
+    void CrashHandler::setReporter(const QString& reporter)
+    {
+        QString rep = reporter;
+
+        if(!QDir::isAbsolutePath(rep)) {
+    #if defined(Q_OS_MAC)
+                // TODO(AlekSi) What to do if we are not inside bundle?
+                rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/../Resources/") + rep);
+    #elif defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
+                // MAYBE(AlekSi) Better place for Linux? libexec? or what?
+                rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep);
+    #else
+               // What is this?!
+    #endif
+
+            qDebug("BreakpadQt: setReporter: %s -> %s", qPrintable(reporter), qPrintable(rep));
+        }
+
+
+        Q_ASSERT(QDir::isAbsolutePath(rep));
+
+        // add .exe for Windows if needed
+    #if defined(Q_OS_WIN32)
+            if(!QDir().exists(rep)) {
+                rep += QLatin1String(".exe");
+            }
+    #endif
+        Q_ASSERT(QDir().exists(rep));
+
+        qstrcpy(d->reporter_, QFile::encodeName(rep).data());
+    }
+
+
+
 }

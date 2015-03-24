@@ -1,10 +1,5 @@
 /****************************************************************************
 **
-** Original Author :  Aleksey Palazhchenk
-** Copyright (C) 2009, Aleksey Palazhchenk  BSD 2-Clause License
-**
-** Modifications
-**
 ** Copyright (C) 2007-2015 Speedovation
 ** Contact: Speedovation Lab (info@speedovation.com)
 **
@@ -24,7 +19,8 @@
 
 #include <QtCore/QString>
 
-namespace Breakpad {
+namespace CrashManager
+{
     class CrashHandlerPrivate;
     class CrashHandler
     {
@@ -33,6 +29,7 @@ namespace Breakpad {
     void Init(const QString&  reportPath);
 
         void setReportCrashesToSystem(bool report);
+        void setReporter(const QString& reporter);
         bool writeMinidump();
 
     private:
@@ -42,5 +39,6 @@ namespace Breakpad {
         CrashHandlerPrivate* d;
     };
 }
+
 
 #endif	// CRASHHANDLER_H
