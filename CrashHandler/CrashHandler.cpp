@@ -17,6 +17,7 @@
 **   2. https://github.com/AlekSi/breakpad-qt - Aleksey Palazhchenko, BSD-2 License
 **   3. http://www.cplusplus.com/forum/lounge/17684/
 **   4. http://www.cplusplus.com/forum/beginner/48283/
+**   5. http://www.siafoo.net/article/63
 **
 */
 
