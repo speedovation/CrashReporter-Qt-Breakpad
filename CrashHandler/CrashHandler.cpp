@@ -177,25 +177,22 @@ namespace CrashManager
                 exit(1);
             case 0: /* Child process */
             {
-                //In my case APP is hanging and not get killed
-                //kill it
-               // int parent = getppid();
-                //kill(parent, SIGKILL);
 
 
-                execl(CrashHandlerPrivate::reporter_,CrashHandlerPrivate::reporter_, CrashHandlerPrivate::pHandler->minidump_descriptor().path(),(char*) 0 ); /* Execute the program */
+
+                execl(program,program, CrashHandlerPrivate::pHandler->minidump_descriptor().path(),(char*) 0 ); /* Execute the program */
                 std::cerr << "Uh-Oh! execl() failed!";
                 /* execl doesn't return unless there's an error */
                 //qApp->quit();
                 exit(1);
             }
             default: /* Parent process */
-//                std::cout << "Process created with pid " << pid << "\n";
-//                int status;
-
-//                std::cout << "Process exited with " << WEXITSTATUS(status) << "\n";
-
-                return 0;
+                //Don't hand app
+                //If required kill parent like below
+                //kill it
+                //int parent = getppid();
+                //kill(parent, SIGKILL);
+                return false;
         }
 
 #endif
@@ -232,7 +229,7 @@ namespace CrashManager
         */
 
 
-        launcher(CrashHandlerPrivate::reporter_,{CrashHandlerPrivate::pHandler->minidump_descriptor().path()});
+        launcher(CrashHandlerPrivate::reporter_,CrashHandlerPrivate::pHandler->minidump_descriptor().path());
 
 
 
