@@ -101,6 +101,25 @@ namespace CrashManager
         //LINUX and WIN Ref : http://www.cplusplus.com/forum/lounge/17684/
 
 #ifdef Q_OS_WIN
+
+        #ref http://stackoverflow.com/questions/1067789/how-to-create-a-process-in-c-on-windows
+        SHELLEXECUTEINFO shExecInfo;
+
+        shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+
+        shExecInfo.fMask = NULL;
+        shExecInfo.hwnd = NULL;
+        shExecInfo.lpVerb = L"runas";
+        shExecInfo.lpFile = L"regasm.exe";
+        shExecInfo.lpParameters = L"testdll /tlb:test.tlb /codebase";
+        shExecInfo.lpDirectory = NULL;
+        shExecInfo.nShow = SW_NORMAL;
+        shExecInfo.hInstApp = NULL;
+
+        ShellExecuteEx(&shExecInfo);
+
+
+
         //Ref : http://www.cplusplus.com/forum/beginner/48283/
 
         STARTUPINFO si = {};
