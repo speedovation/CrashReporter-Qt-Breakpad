@@ -61,23 +61,23 @@ namespace CrashManager
     /************************************************************************/
     class CrashHandlerPrivate
     {
-    public:
-        CrashHandlerPrivate()
-        {
-            pHandler = NULL;
-        }
+        public:
+            CrashHandlerPrivate()
+            {
+                pHandler = NULL;
+            }
 
-        ~CrashHandlerPrivate()
-        {
-            delete pHandler;
-        }
+            ~CrashHandlerPrivate()
+            {
+                delete pHandler;
+            }
 
-        void InitCrashHandler(const QString& dumpPath);
-        static google_breakpad::ExceptionHandler* pHandler;
-        static bool bReportCrashesToSystem;
+            void InitCrashHandler(const QString& dumpPath);
+            static google_breakpad::ExceptionHandler* pHandler;
+            static bool bReportCrashesToSystem;
 
-        static char reporter_[1024];
-        static char reporterArguments_[8*1024];
+            static char reporter_[1024];
+            static char reporterArguments_[8*1024];
 
     };
 
@@ -93,78 +93,80 @@ namespace CrashManager
     bool launcher(const char* program, const char* path)
     {
         // TODO launcher
-    //	if(!GlobalHandlerPrivate::reporter_.isEmpty()) {
-    //		QProcess::startDetached(GlobalHandlerPrivate::reporter_);	// very likely we will die there
-    //	}
-
+        //	if(!GlobalHandlerPrivate::reporter_.isEmpty()) {
+        //		QProcess::startDetached(GlobalHandlerPrivate::reporter_);	// very likely we will die there
+        //	}
 
         //LINUX and WIN Ref : http://www.cplusplus.com/forum/lounge/17684/
 
-   #ifdef Q_OS_WIN
+#ifdef Q_OS_WIN
         //Ref : http://www.cplusplus.com/forum/beginner/48283/
 
         STARTUPINFO si = {};
-           si.cb = sizeof si;
+        si.cb = sizeof si;
 
-           PROCESS_INFORMATION pi = {};
-           const TCHAR* target = _T("c:\\WINDOWS\\system32\\calc.exe");
+        PROCESS_INFORMATION pi = {};
+        const TCHAR* target = _T("c:\\WINDOWS\\system32\\calc.exe");
 
-           if ( !CreateProcess(target, 0, 0, FALSE, 0, 0, 0, 0, &si, &pi) )
-           {
-               cerr << "CreateProcess failed (" << GetLastError() << ").\n";
-           }
-           else
-           {
-               cout << "Waiting on process for 5 seconds.." << endl;
-               WaitForSingleObject(pi.hProcess, 5 * 1000);
-               /*
+        if ( !CreateProcess(target, 0, 0, FALSE, 0, 0, 0, 0, &si, &pi) )
+        {
+            cerr << "CreateProcess failed (" << GetLastError() << ").\n";
+        }
+        else
+        {
+            cout << "Waiting on process for 5 seconds.." << endl;
+            WaitForSingleObject(pi.hProcess, 5 * 1000);
+            /*
                if ( TerminateProcess(pi.hProcess, 0) ) // Evil
                    cout << "Process terminated!";
                */
-               if ( PostThreadMessage(pi.dwThreadId, WM_QUIT, 0, 0) ) // Good
-                   cout << "Request to terminate process has been sent!";
+            if ( PostThreadMessage(pi.dwThreadId, WM_QUIT, 0, 0) ) // Good
+                cout << "Request to terminate process has been sent!";
 
-               CloseHandle(pi.hProcess);
-               CloseHandle(pi.hThread);
-           }
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
 
-           cin.sync();
-           cin.ignore();
-
-
-           //ALSO
-
-           LPCTSTR lpApplicationName = "C:/Windows/System32/cmd.exe"; /* The program to be executed */
-
-           LPSTARTUPINFO lpStartupInfo;
-           LPPROCESS_INFORMATION lpProcessInfo;
-
-           memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
-           memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
-
-           /* Create the process */
-           if (!CreateProcess(lpApplicationName,
-                              NULL, NULL, NULL,
-                              NULL, NULL, NULL, NULL,
-                              lpStartupInfo,
-                              lpProcessInformation
-                             )
-              ) {
-               std::cerr << "Uh-Oh! CreateProcess() failed to start program \"" << lpApplicationName << "\"\n";
-               exit(1);
-           }
-
-           std::cout << "Started program \"" << lpApplicationName << "\" successfully\n";
+        cin.sync();
+        cin.ignore();
 
 
+        //ALSO
+
+        LPCTSTR lpApplicationName = "C:/Windows/System32/cmd.exe"; /* The program to be executed */
+
+        LPSTARTUPINFO lpStartupInfo;
+        LPPROCESS_INFORMATION lpProcessInfo;
+
+        memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
+        memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
+
+        /* Create the process */
+        if (!CreateProcess(lpApplicationName,
+                           NULL, NULL, NULL,
+                           NULL, NULL, NULL, NULL,
+                           lpStartupInfo,
+                           lpProcessInformation
+                           )
+                ) {
+            std::cerr << "Uh-Oh! CreateProcess() failed to start program \"" << lpApplicationName << "\"\n";
+            exit(1);
+        }
+
+        std::cout << "Started program \"" << lpApplicationName << "\" successfully\n";
 
 
-    #else
+
+
+#else
         //FOR LINUX and MAC
-//        char* programPath = "/bin/bash";
+        //        char* programPath = "/bin/bash";
 
-        std::cout << "path: " << CrashHandlerPrivate::pHandler->minidump_descriptor().path()
-                  << "__"   << CrashHandlerPrivate::reporter_;
+
+        //Cout is not visible in qtcreator output window..may be QtC.. bug or I don't know
+        //Visible on terminal output
+        std::cout << "CrashReporter: "   << CrashHandlerPrivate::reporter_
+                  << "Dmppath: "      << CrashHandlerPrivate::pHandler->minidump_descriptor().path();
 
         pid_t pid = fork(); /* Create a child process */
 
@@ -173,33 +175,34 @@ namespace CrashManager
                 std::cerr << "Uh-Oh! fork() failed.\n";
                 exit(1);
             case 0: /* Child process */
+            {
+                //In my case APP is hanging and not get killed
+                //kill it
+               // int parent = getppid();
+                //kill(parent, SIGKILL);
 
-                 //execve(CrashHandlerPrivate::reporter_, "", NULL);
 
                 execl(CrashHandlerPrivate::reporter_,CrashHandlerPrivate::reporter_, CrashHandlerPrivate::pHandler->minidump_descriptor().path(),(char*) 0 ); /* Execute the program */
                 std::cerr << "Uh-Oh! execl() failed!";
                 /* execl doesn't return unless there's an error */
-                qApp->quit();
-                //exit(1);
+                //qApp->quit();
+                exit(1);
+            }
             default: /* Parent process */
-                std::cout << "Process created with pid " << pid << "\n";
-                int status;
+//                std::cout << "Process created with pid " << pid << "\n";
+//                int status;
 
-                while (!WIFEXITED(status)) {
-                    waitpid(pid, &status, 0); /* Wait for the process to complete */
-                }
-
-                std::cout << "Process exited with " << WEXITSTATUS(status) << "\n";
+//                std::cout << "Process exited with " << WEXITSTATUS(status) << "\n";
 
                 return 0;
         }
 
-    #endif
+#endif
 
 
-           Q_UNUSED(program);
-           Q_UNUSED(path);
-           return false;
+        Q_UNUSED(program);
+        Q_UNUSED(path);
+        return false;
     }
 
 
@@ -220,7 +223,7 @@ namespace CrashManager
         Q_UNUSED(assertion);
         Q_UNUSED(exinfo);
 #endif
-        qDebug("BreakpadQt crash");
+        //qDebug("BreakpadQt crash");
 
         /*
         NO STACK USE, NO HEAP USE THERE !!!
@@ -229,6 +232,7 @@ namespace CrashManager
 
 
         launcher(CrashHandlerPrivate::reporter_,{CrashHandlerPrivate::pHandler->minidump_descriptor().path()});
+
 
 
         return CrashHandlerPrivate::bReportCrashesToSystem ? success : true;
@@ -243,35 +247,35 @@ namespace CrashManager
 #if defined(Q_OS_WIN32)
         std::wstring pathAsStr = (const wchar_t*)dumpPath.utf16();
         pHandler = new google_breakpad::ExceptionHandler(
-            pathAsStr,
-            /*FilterCallback*/ 0,
-            DumpCallback,
-            /*context*/
-            0,
-            true
-            );
+                    pathAsStr,
+                    /*FilterCallback*/ 0,
+                    DumpCallback,
+                    /*context*/
+                    0,
+                    true
+                    );
 #elif defined(Q_OS_LINUX)
         std::string pathAsStr = dumpPath.toStdString();
         google_breakpad::MinidumpDescriptor md(pathAsStr);
         pHandler = new google_breakpad::ExceptionHandler(
-            md,
-            /*FilterCallback*/ 0,
-            DumpCallback,
-            /*context*/ 0,
-            true,
-            -1
-            );
+                    md,
+                    /*FilterCallback*/ 0,
+                    DumpCallback,
+                    /*context*/ 0,
+                    true,
+                    -1
+                    );
 #elif defined(Q_OS_MAC)
         std::string pathAsStr = dumpPath.toStdString();
         pHandler = new google_breakpad::ExceptionHandler(
-            pathAsStr,
-            /*FilterCallback*/ 0,
-            DumpCallback,
-            /*context*/
-            0,
-            true,
-            NULL
-            );
+                    pathAsStr,
+                    /*FilterCallback*/ 0,
+                    DumpCallback,
+                    /*context*/
+                    0,
+                    true,
+                    NULL
+                    );
 #endif
 
 
@@ -324,16 +328,21 @@ namespace CrashManager
     {
         QString rep = reporter;
 
-        if(!QDir::isAbsolutePath(rep)) {
-    #if defined(Q_OS_MAC)
-                // TODO(AlekSi) What to do if we are not inside bundle?
-                rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/../Resources/") + rep);
-    #elif defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
-                // MAYBE(AlekSi) Better place for Linux? libexec? or what?
-                rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep);
-    #else
-               // What is this?!
-    #endif
+        if(!QDir::isAbsolutePath(rep))
+        {
+
+#if defined(Q_OS_MAC)
+            // TODO(AlekSi) What to do if we are not inside bundle?
+            rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/../Resources/") + rep);
+#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
+            // MAYBE(AlekSi) Better place for Linux? libexec? or what?
+            rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep);
+#elif defined(Q_OS_WIN32)
+            // add .exe for Windows if needed
+            if(!QDir().exists(rep)) {
+                rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep + QLatin1String(".exe");
+            }
+#endif
 
             qDebug("BreakpadQt: setReporter: %s -> %s", qPrintable(reporter), qPrintable(rep));
         }
@@ -341,13 +350,7 @@ namespace CrashManager
 
         Q_ASSERT(QDir::isAbsolutePath(rep));
 
-        // add .exe for Windows if needed
-    #if defined(Q_OS_WIN32)
-            if(!QDir().exists(rep)) {
-                rep += QLatin1String(".exe");
-            }
-    #endif
-        Q_ASSERT(QDir().exists(rep));
+        Q_ASSERT(QFile().exists(rep));
 
         qstrcpy(d->reporter_, QFile::encodeName(rep).data());
     }
