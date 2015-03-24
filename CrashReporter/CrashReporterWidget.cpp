@@ -130,10 +130,19 @@ void CrashReporterWidget::on_btnCancel_clicked()
 
 void CrashReporterWidget::on_btnRestart_clicked()
 {
-//    int n = QProcess::execute("KiWi");
+//    int n = QProcess::execute("./KiWi");
 //    qDebug() << "n" << n;
 
     QProcess p;
 
-    p.startDetached("KiWi");
+
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    p.startDetached("./KiWi");
+#elif defined(Q_OS_WIN32)
+    p.startDetached("KiWi.exe");
+#endif
+
+
+
+    qApp->quit();
 }
