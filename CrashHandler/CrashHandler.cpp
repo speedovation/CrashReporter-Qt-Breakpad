@@ -18,12 +18,14 @@
 ** All rights are reserved.
 */
 
-
 #include "CrashHandler.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 #include <QtCore/QCoreApplication>
+
+#include <QString>
+
 
 #if defined(Q_OS_MAC)
 #include "client/mac/handler/exception_handler.h"
@@ -33,168 +35,124 @@
 #include "client/windows/handler/exception_handler.h"
 #endif
 
-namespace CrashManager
-{
-
-    class GlobalHandlerPrivate
+namespace Breakpad {
+    /************************************************************************/
+    /* CrashHandlerPrivate                                                  */
+    /************************************************************************/
+    class CrashHandlerPrivate
     {
-        public:
-            GlobalHandlerPrivate();
-            ~GlobalHandlerPrivate();
+    public:
+        CrashHandlerPrivate()
+        {
+            pHandler = NULL;
+        }
 
-        public:
-            static char reporter_[1024];
-            static char reporterArguments_[8*1024];
-            static google_breakpad::ExceptionHandler* handler_;
-            static ReportCrashesToSystem reportCrashesToSystem_;
+        ~CrashHandlerPrivate()
+        {
+            delete pHandler;
+        }
+
+        void InitCrashHandler(const QString& dumpPath);
+        static google_breakpad::ExceptionHandler* pHandler;
+        static bool bReportCrashesToSystem;
     };
 
-    char GlobalHandlerPrivate::reporter_[1024] = {0};
-    char GlobalHandlerPrivate::reporterArguments_[8*1024] = {0};
-    google_breakpad::ExceptionHandler* GlobalHandlerPrivate::handler_ = 0;
-    ReportCrashesToSystem GlobalHandlerPrivate::reportCrashesToSystem_ = ReportUnhandled;
+    google_breakpad::ExceptionHandler* CrashHandlerPrivate::pHandler = NULL;
+    bool CrashHandlerPrivate::bReportCrashesToSystem = false;
 
-
-    bool launcher(const char* program, const char* const arguments[])
-    {
-        // TODO launcher
-        //	if(!GlobalHandlerPrivate::reporter_.isEmpty()) {
-        //		QProcess::startDetached(GlobalHandlerPrivate::reporter_);	// very likely we will die there
-        //	}
-
-        Q_UNUSED(program);
-        Q_UNUSED(arguments);
-        return false;
-    }
-
-
+    /************************************************************************/
+    /* DumpCallback                                                         */
+    /************************************************************************/
 #if defined(Q_OS_WIN32)
-    bool DumpCallback(const wchar_t* _dump_dir,
-                      const wchar_t* _minidump_id,
-                      void* context,
-                      EXCEPTION_POINTERS* exinfo,
-                      MDRawAssertionInfo* assertion,
-                      bool success)
-#else
-    bool DumpCallback(const char* _dump_dir,
-                      const char* _minidump_id,
-                      void *context, bool success)
+    bool DumpCallback(const wchar_t* _dump_dir,const wchar_t* _minidump_id,void* context,EXCEPTION_POINTERS* exinfo,MDRawAssertionInfo* assertion,bool success)
+#elif defined(Q_OS_LINUX)
+    bool DumpCallback(const google_breakpad::MinidumpDescriptor &md,void *context, bool success)
 #endif
     {
-        Q_UNUSED(_dump_dir);
-        Q_UNUSED(_minidump_id);
         Q_UNUSED(context);
 #if defined(Q_OS_WIN32)
+        Q_UNUSED(_dump_dir);
+        Q_UNUSED(_minidump_id);
         Q_UNUSED(assertion);
         Q_UNUSED(exinfo);
 #endif
+        qDebug("BreakpadQt crash");
 
         /*
         NO STACK USE, NO HEAP USE THERE !!!
         Creating QString's, using qDebug, etc. - everything is crash-unfriendly.
-    */
-
-        launcher(GlobalHandlerPrivate::reporter_, 0);
-        return (GlobalHandlerPrivate::reportCrashesToSystem_ == ReportUnhandled) ? success : false;
+        */
+        return CrashHandlerPrivate::bReportCrashesToSystem ? success : true;
     }
 
-
-    GlobalHandlerPrivate::GlobalHandlerPrivate()
+    void CrashHandlerPrivate::InitCrashHandler(const QString& dumpPath)
     {
+        if ( pHandler != NULL )
+            return;
 
-        //handler_ = new google_breakpad::ExceptionHandler(/*DumpPath*/ "", /*FilterCallback*/ 0, DumpCallback, /*context*/ 0, true, 0);
+         google_breakpad::ExceptionHandler()
+
+#if defined(Q_OS_WIN32)
+        std::wstring pathAsStr = (const wchar_t*)dumpPath.utf16();
+        pHandler = new google_breakpad::ExceptionHandler(
+            pathAsStr,
+            /*FilterCallback*/ 0,
+            DumpCallback,
+            /*context*/
+            0,
+            true
+            );
+#elif defined(Q_OS_LINUX)
+        std::string pathAsStr = dumpPath.toStdString();
+        google_breakpad::MinidumpDescriptor md(pathAsStr);
+        pHandler = new google_breakpad::ExceptionHandler(
+            md,
+            /*FilterCallback*/ 0,
+            DumpCallback,
+            /*context*/ 0,
+            true,
+            -1
+            );
+#endif
     }
 
-    GlobalHandlerPrivate::~GlobalHandlerPrivate()
+    /************************************************************************/
+    /* CrashHandler                                                         */
+    /************************************************************************/
+    CrashHandler* CrashHandler::instance()
     {
-        delete handler_;
-        handler_ = 0;
-    }
-
-
-    GlobalHandler* GlobalHandler::instance()
-    {
-        static GlobalHandler globalHandler;
+        static CrashHandler globalHandler;
         return &globalHandler;
     }
 
-    GlobalHandler::GlobalHandler()
+    CrashHandler::CrashHandler()
     {
-        d = new GlobalHandlerPrivate();
+        d = new CrashHandlerPrivate();
     }
 
-    GlobalHandler::~GlobalHandler()
+    CrashHandler::~CrashHandler()
     {
         delete d;
-        d = 0;
     }
 
-    void GlobalHandler::setDumpPath(const QString& path)
+    void CrashHandler::setReportCrashesToSystem(bool report)
     {
-        QString absPath = path;
-
-        if(!QDir::isAbsolutePath(absPath)) {
-            absPath = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + path);
-            qDebug("BreakpadQt: setDumpPath: %s -> %s", qPrintable(path), qPrintable(absPath));
-        }
-
-
-        Q_ASSERT(QDir::isAbsolutePath(absPath));
-
-        QDir().mkpath(absPath);
-        Q_ASSERT(QDir().exists(absPath));
-
-#if defined(Q_OS_WIN32)
-        d->handler_->set_dump_path(absPath.toStdWString());
-#else
-       /// d->handler_->set_dump_path(absPath.toStdString());
-#endif
+        d->bReportCrashesToSystem = report;
     }
 
-    void GlobalHandler::setReporter(const QString& reporter)
+    bool CrashHandler::writeMinidump()
     {
-        QString rep = reporter;
-
-        if(!QDir::isAbsolutePath(rep)) {
-#if defined(Q_OS_MAC)
-            // TODO(AlekSi) What to do if we are not inside bundle?
-            rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/../Resources/") + rep);
-#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
-            // MAYBE(AlekSi) Better place for Linux? libexec? or what?
-            rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep);
-#else
-            What is this?!
-             #endif
-
-                         qDebug("BreakpadQt: setReporter: %s -> %s", qPrintable(reporter), qPrintable(rep));
-        }
-        Q_ASSERT(QDir::isAbsolutePath(rep));
-
-        // add .exe for Windows if needed
-#if defined(Q_OS_WIN32)
-        if(!QDir().exists(rep)) {
-            rep += QLatin1String(".exe");
-        }
-#endif
-        Q_ASSERT(QDir().exists(rep));
-
-        qstrcpy(d->reporter_, QFile::encodeName(rep));
-    }
-
-    void GlobalHandler::setReportCrashesToSystem(ReportCrashesToSystem report)
-    {
-        d->reportCrashesToSystem_ = report;
-    }
-
-    bool GlobalHandler::writeMinidump()
-    {
-        bool res = d->handler_->WriteMinidump();
+        bool res = d->pHandler->WriteMinidump();
         if (res) {
-            qDebug("BreakpadQt: writeMinidump() successed.");
+            qDebug("BreakpadQt: writeMinidump() success.");
         } else {
             qWarning("BreakpadQt: writeMinidump() failed.");
         }
         return res;
     }
 
-}	// namespace
+    void CrashHandler::Init( const QString& reportPath )
+    {
+        d->InitCrashHandler(reportPath);
+    }
+}

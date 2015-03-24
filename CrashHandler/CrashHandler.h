@@ -23,37 +23,24 @@
 #define CRASHHANDLER_H
 
 #include <QtCore/QString>
-namespace google_breakpad { class ExceptionHandler; }
 
-namespace CrashManager
-{
-
-    class GlobalHandlerPrivate;
-
-    enum ReportCrashesToSystem
+namespace Breakpad {
+    class CrashHandlerPrivate;
+    class CrashHandler
     {
-        ReportUnhandled = 1,
-        AlwaysReport = 2
+    public:
+        static CrashHandler* instance();
+    void Init(const QString&  reportPath);
+
+        void setReportCrashesToSystem(bool report);
+        bool writeMinidump();
+
+    private:
+        CrashHandler();
+        ~CrashHandler();
+        Q_DISABLE_COPY(CrashHandler)
+        CrashHandlerPrivate* d;
     };
-
-    class GlobalHandler
-    {
-        public:
-            static GlobalHandler* instance();
-
-            void setDumpPath(const QString& path);
-            void setReporter(const QString& reporter);
-            void setReportCrashesToSystem(ReportCrashesToSystem report);
-            bool writeMinidump();
-
-        private:
-            GlobalHandler();
-            ~GlobalHandler();
-            Q_DISABLE_COPY(GlobalHandler)
-
-            GlobalHandlerPrivate* d;
-    };
-
-}	// namespace
+}
 
 #endif	// CRASHHANDLER_H
