@@ -47,6 +47,8 @@ class CrashReporterWidget : public QWidget
 
         void on_btnRestart_clicked();
 
+        void on_btnClose_clicked();
+
     private:
         Ui::CrashReporterWidget *ui;
 

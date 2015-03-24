@@ -37,6 +37,7 @@ CrashReporterWidget::CrashReporterWidget(QWidget *parent) :
     movie.start ();
 
     ui->loader->hide();
+    ui->btnClose->hide();
 
     setWindowTitle(VER_PRODUCTNAME_STR  " CrashReporter");
 
@@ -123,6 +124,7 @@ void CrashReporterWidget::handle_result(HttpRequestWorker *worker) {
 
         ui->info->setText("Report submitted successfully");
         ui->btnSendReport->hide();
+        ui->btnClose->show();
 
     }
     else {
@@ -156,4 +158,9 @@ void CrashReporterWidget::on_btnRestart_clicked()
 
     qApp->quit();
 
+}
+
+void CrashReporterWidget::on_btnClose_clicked()
+{
+    qApp->quit();
 }
