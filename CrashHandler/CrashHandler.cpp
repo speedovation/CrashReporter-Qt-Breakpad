@@ -263,10 +263,10 @@ namespace CrashManager
         Creating QString's, using qDebug, etc. - everything is crash-unfriendly.
         */
 
- char* path;
 
-#ifdef defined(Q_OS_LINUX)
-        path =  CrashHandlerPrivate::pHandler->minidump_descriptor().path()
+
+#if defined(Q_OS_LINUX)
+        const char* path =  CrashHandlerPrivate::pHandler->minidump_descriptor().path();
         launcher(CrashHandlerPrivate::reporter_,path);
 #elif defined(Q_OS_WIN)
 
@@ -285,11 +285,13 @@ namespace CrashManager
         wcscat( wpath, L".dmp" );
 
 
-        wcstombs(path,wpath, sizeof(path) );
+        //wcstombs(path,wpath, sizeof(path) );
 
 
         launcher(wpath);
 #elif defined(Q_OS_MAC)
+
+        char* path;
 
          strcpy (path,_dump_dir);
          strcat (path,"/");
