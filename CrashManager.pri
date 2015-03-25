@@ -1,5 +1,5 @@
 #  Apache 2.0 License
-#  copyright 2015 Speedovation 
+#  copyright 2015 Speedovation, Yash Pal, yash@speedovation.com
 
 
 INCLUDEPATH += $$PWD $$PWD/breakpad $$PWD/breakpad/src $$PWD/CrashHandler
@@ -46,11 +46,13 @@ unix{
             $$PWD/breakpad/src/google_breakpad/common/minidump_size.h \
             $$PWD/breakpad/src/google_breakpad/common/breakpad_types.h \
             $$PWD/breakpad/src/common/scoped_ptr.h \
+            $$PWD/breakpad/src/common/md5.h
 
     SOURCES += \
             $$PWD/breakpad/src/client/minidump_file_writer.cc \
             $$PWD/breakpad/src/common/string_conversion.cc \
             $$PWD/breakpad/src/common/convert_UTF.c \
+            $$PWD/breakpad/src/common/md5.cc
 
     QMAKE_CXXFLAGS+=-g
 }
@@ -120,10 +122,41 @@ SOURCES +=  \
 mac{
 
 HEADERS += \
-        $$PWD/breakpad/src/client/mac/handler/exception_handler.h
+        $$PWD/breakpad/src/client/mac/handler/exception_handler.h \
+        $$PWD/breakpad/src/client/mac/handler/minidump_generator.h \
+        $$PWD/breakpad/src/client/mac/handler/dynamic_images.h \
+        $$PWD/breakpad/src/client/mac/handler/breakpad_nlist_64.h \
+        $$PWD/breakpad/src/client/mac/crash_generation/crash_generation_client.h \
+        $$PWD/breakpad/src/common/mac/bootstrap_compat.h \
+        $$PWD/breakpad/src/common/mac/macho_utilities.h \
+        $$PWD/breakpad/src/common/mac/scoped_task_suspend-inl.h \
+        $$PWD/breakpad/src/common/mac/file_id.h \
+        $$PWD/breakpad/src/common/mac/macho_id.h \
+        $$PWD/breakpad/src/common/mac/macho_id.h \
+        $$PWD/breakpad/src/common/mac/macho_walker.h \
+        $$PWD/breakpad/src/common/mac/string_utilities.h \
+        $$PWD/breakpad/src/google_breakpad/common/minidump_exception_mac.h \
 
 SOURCES += \
-        $$PWD/breakpad/src/client/mac/handler/exception_handler.cc
+        $$PWD/breakpad/src/client/mac/handler/exception_handler.cc \
+        $$PWD/breakpad/src/client/mac/handler/minidump_generator.cc \
+        $$PWD/breakpad/src/client/mac/handler/dynamic_images.cc \
+        $$PWD/breakpad/src/client/mac/crash_generation/crash_generation_client.cc \
+        $$PWD/breakpad/src/client/mac/handler/breakpad_nlist_64.cc \
+        $$PWD/breakpad/src/common/mac/file_id.cc \
+        $$PWD/breakpad/src/common/mac/macho_utilities.cc \
+        $$PWD/breakpad/src/common/mac/macho_id.cc \
+        $$PWD/breakpad/src/common/mac/macho_reader.cc \
+        $$PWD/breakpad/src/common/mac/string_utilities.cc \
+        $$PWD/breakpad/src/common/mac/bootstrap_compat.cc \
+        $$PWD/breakpad/src/common/mac/macho_walker.cc \
+
+
+OBJECTIVE_HEADERS += \
+        $$PWD/breakpad/src/common/mac/MachIPC.h \
+
+OBJECTIVE_SOURCES += \
+        $$PWD/breakpad/src/common/mac/MachIPC.mm \
 
 }
 

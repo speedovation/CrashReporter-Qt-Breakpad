@@ -37,6 +37,8 @@
 #include <QtCore/QCoreApplication>
 #include <QString>
 
+#include <QDebug>
+
 #include "../../version.h"
 
 #if defined(Q_OS_MAC)
@@ -396,8 +398,9 @@ namespace CrashManager
         {
 
 #if defined(Q_OS_MAC)
+            qDebug() <<  qApp->applicationDirPath()  ;
             // TODO(AlekSi) What to do if we are not inside bundle?
-            rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/../Resources/") + rep);
+            rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep);
 #elif defined(Q_OS_LINUX)
             // MAYBE(AlekSi) Better place for Linux? libexec? or what?
             rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep);
