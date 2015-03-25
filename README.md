@@ -42,7 +42,7 @@ That's it. :)
 * Any WIKI page about how easy to use breakpad with Qt.
 * Enable create issue button in crash reporter
 
-For all TODOs I'm pretty much rely of PULL requests so make one and contribute back.
+For all TODOs I'm pretty much rely on PULL requests so make one and contribute back.
 
 ### License
 * Apache 2.0 license
