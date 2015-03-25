@@ -51,6 +51,7 @@
 
 #elif defined(Q_OS_WIN32)
 
+#include "Tchar.h"
 #include "client/windows/handler/exception_handler.h"
 
 #endif
@@ -91,16 +92,13 @@ namespace CrashManager
     /* DumpCallback                                                         */
     /************************************************************************/
 
-    bool launcher(const char* program, const char* path)
-    {
-        // TODO launcher
-        //	if(!GlobalHandlerPrivate::reporter_.isEmpty()) {
-        //		QProcess::startDetached(GlobalHandlerPrivate::reporter_);	// very likely we will die there
-        //	}
-
-        //LINUX and WIN Ref : http://www.cplusplus.com/forum/lounge/17684/
 
 #ifdef Q_OS_WIN
+
+
+    bool launcher(const wchar_t* program)
+    {
+
 
         //ref http://stackoverflow.com/questions/1067789/how-to-create-a-process-in-c-on-windows
        /* SHELLEXECUTEINFO shExecInfo;
@@ -127,22 +125,37 @@ namespace CrashManager
         si.cb = sizeof si;
 
         PROCESS_INFORMATION pi = {};
-        const TCHAR* target = _T(program);
 
-        if ( !CreateProcess(target, 0, 0, FALSE, 0, 0, 0, 0, &si, &pi) )
+//        const size_t cSize = strlen(program)+1;
+//           wchar_t* wc = new wchar_t[cSize];
+//           mbstowcs (wc, program, cSize);
+
+
+//           const size_t cSize = strlen(program)+1;
+//              wchar_t* wc = new wchar_t[cSize];
+//              mbstowcs (wc, program, cSize);
+
+//         LPCTSTR target = program;
+
+        //We will do something like this
+        //  LPTSTR szCmdline[] = _tcsdup(TEXT("\"C:\\Program Files\\MyApp\" -L -S"));
+
+        //  CreateProcess(NULL, szCmdline, /*...*/);
+
+        if ( !CreateProcess(NULL, (LPWSTR)program, 0, FALSE, 0, 0, 0, 0, &si, &pi) )
         {
-            cerr << "CreateProcess failed (" << GetLastError() << ").\n";
+            std::cerr << "CreateProcess failed (" << GetLastError() << ").\n";
         }
         else
         {
-            cout << "Waiting on process for 5 seconds.." << endl;
+            std::cout << "Waiting on process for 5 seconds.." << std::endl;
             WaitForSingleObject(pi.hProcess, 5 * 1000);
             /*
                if ( TerminateProcess(pi.hProcess, 0) ) // Evil
                    cout << "Process terminated!";
                */
             if ( PostThreadMessage(pi.dwThreadId, WM_QUIT, 0, 0) ) // Good
-                cout << "Request to terminate process has been sent!";
+                std::cout << "Request to terminate process has been sent!";
 
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
@@ -178,8 +191,18 @@ namespace CrashManager
 
 
 
-
 #else
+
+    bool launcher(const char* program, const char* path)
+    {
+        // TODO launcher
+        //	if(!GlobalHandlerPrivate::reporter_.isEmpty()) {
+        //		QProcess::startDetached(GlobalHandlerPrivate::reporter_);	// very likely we will die there
+        //	}
+
+        //LINUX and WIN Ref : http://www.cplusplus.com/forum/lounge/17684/
+
+
         //FOR LINUX and MAC
         //        char* programPath = "/bin/bash";
 
@@ -215,11 +238,11 @@ namespace CrashManager
                 return false;
         }
 
+        //Q_UNUSED(path);
 #endif
 
 
         Q_UNUSED(program);
-        Q_UNUSED(path);
         return false;
     }
 
@@ -249,20 +272,35 @@ namespace CrashManager
         */
 
 
-        const char* path;
+        char* path;
 
 #ifdef defined(Q_OS_LINUX)
         path =  CrashHandlerPrivate::pHandler->minidump_descriptor().path()
-#elif defined(Q_OS_WIN)
-         path = dump_dir + "/" + minidump_id  + ".dmp";
-
-         qDebug("path" + path );
-#endif
-
-
         launcher(CrashHandlerPrivate::reporter_,path);
+#elif defined(Q_OS_WIN)
+
+        const size_t cSize = strlen(CrashHandlerPrivate::reporter_)+1;
+        wchar_t* program = new wchar_t[cSize];
+        mbstowcs ( program, CrashHandlerPrivate::reporter_, cSize);
+
+        wchar_t* wpath = new wchar_t[MAX_PATH * 10];
+
+        wcscpy( wpath, program);
+
+        wcscat( wpath, _dump_dir );
+        wcscat( wpath, L"/" );
+        wcscat( wpath, _minidump_id );
+        wcscat( wpath, L".dmp\"" );
+
+        //wcstombs(path,wpath, sizeof(path) );
 
 
+
+         //qDebug( path );
+         //qDebug( program );
+
+         launcher(wpath);
+#endif
 
         return CrashHandlerPrivate::bReportCrashesToSystem ? success : true;
     }
@@ -363,13 +401,13 @@ namespace CrashManager
 #if defined(Q_OS_MAC)
             // TODO(AlekSi) What to do if we are not inside bundle?
             rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/../Resources/") + rep);
-#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
+#elif defined(Q_OS_LINUX)
             // MAYBE(AlekSi) Better place for Linux? libexec? or what?
             rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep);
-#elif defined(Q_OS_WIN32)
+#elif defined(Q_OS_WIN)
             // add .exe for Windows if needed
             if(!QDir().exists(rep)) {
-                rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep + QLatin1String(".exe");
+                rep = QDir::cleanPath(qApp->applicationDirPath() + QLatin1String("/") + rep + QLatin1String(".exe"));
             }
 #endif
 
@@ -379,7 +417,7 @@ namespace CrashManager
 
         Q_ASSERT(QDir::isAbsolutePath(rep));
 
-        Q_ASSERT(QFile().exists(rep));
+        Q_ASSERT(QDir().exists(rep));
 
         qstrcpy(d->reporter_, QFile::encodeName(rep).data());
     }
