@@ -99,48 +99,10 @@ namespace CrashManager
     bool launcher(wchar_t* program)
     {
 
-
-        //ref http://stackoverflow.com/questions/1067789/how-to-create-a-process-in-c-on-windows
-       /* SHELLEXECUTEINFO shExecInfo;
-
-        shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-
-        shExecInfo.fMask = NULL;
-        shExecInfo.hwnd = NULL;
-        shExecInfo.lpVerb = L"runas";
-        shExecInfo.lpFile = L"regasm.exe";
-        shExecInfo.lpParameters = L"testdll /tlb:test.tlb /codebase";
-        shExecInfo.lpDirectory = NULL;
-        shExecInfo.nShow = SW_NORMAL;
-        shExecInfo.hInstApp = NULL;
-
-        ShellExecuteEx(&shExecInfo);
-        */
-
-
-
-        //Ref : http://www.cplusplus.com/forum/beginner/48283/
-
         STARTUPINFO si = {};
         si.cb = sizeof si;
 
         PROCESS_INFORMATION pi = {};
-
-//        const size_t cSize = strlen(program)+1;
-//           wchar_t* wc = new wchar_t[cSize];
-//           mbstowcs (wc, program, cSize);
-
-
-//           const size_t cSize = strlen(program)+1;
-//              wchar_t* wc = new wchar_t[cSize];
-//              mbstowcs (wc, program, cSize);
-
-//         LPCTSTR target = program;
-
-        //We will do something like this
-        //  LPTSTR szCmdline[] = _tcsdup(TEXT("\"C:\\Program Files\\MyApp\" -L -S"));
-
-        //  CreateProcess(NULL, szCmdline, /*...*/);
 
         if ( !CreateProcess(NULL, program , 0, FALSE, 0,
                             CREATE_DEFAULT_ERROR_MODE | CREATE_NO_WINDOW | DETACHED_PROCESS,
@@ -155,7 +117,7 @@ namespace CrashManager
             /*
                if ( TerminateProcess(pi.hProcess, 0) ) // Evil
                    cout << "Process terminated!";
-               */
+            */
             if ( PostThreadMessage(pi.dwThreadId, WM_QUIT, 0, 0) ) // Good
                 std::cout << "Request to terminate process has been sent!";
 
@@ -163,34 +125,59 @@ namespace CrashManager
             CloseHandle(pi.hThread);
         }
 
-       // cin.sync();
-       // cin.ignore();
+
+        //ref http://stackoverflow.com/questions/1067789/how-to-create-a-process-in-c-on-windows
+       /*
+        * Code Here for info purpose
+        *
+
+        SHELLEXECUTEINFO shExecInfo;
+
+        shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+
+        shExecInfo.fMask = NULL;
+        shExecInfo.hwnd = NULL;
+        shExecInfo.lpVerb = L"runas";
+        shExecInfo.lpFile = L"regasm.exe";
+        shExecInfo.lpParameters = L"testdll /tlb:test.tlb /codebase";
+        shExecInfo.lpDirectory = NULL;
+        shExecInfo.nShow = SW_NORMAL;
+        shExecInfo.hInstApp = NULL;
+
+        ShellExecuteEx(&shExecInfo);
 
 
-        //ALSO
+          const size_t cSize = strlen(program)+1;
+          wchar_t* wc = new wchar_t[cSize];
+          mbstowcs (wc, program, cSize);
 
-//        LPCTSTR lpApplicationName = program; /* The program to be executed */
+         We will do something like this
+          LPTSTR szCmdline[] = _tcsdup(TEXT("\"C:\\Program Files\\MyApp\" -L -S"));
+          CreateProcess(NULL, szCmdline, /*...* /);
 
-//        LPSTARTUPINFO lpStartupInfo;
-//        LPPROCESS_INFORMATION lpProcessInfo;
+        LPCTSTR lpApplicationName = program; // The program to be executed
 
-//        memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
-//        memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
+        LPSTARTUPINFO lpStartupInfo;
+        LPPROCESS_INFORMATION lpProcessInfo;
 
-//        /* Create the process */
-//        if (!CreateProcess(lpApplicationName,
-//                           NULL, NULL, NULL,
-//                           NULL, NULL, NULL, NULL,
-//                           lpStartupInfo,
-//                           lpProcessInformation
-//                           )
-//                ) {
-//            std::cerr << "Uh-Oh! CreateProcess() failed to start program \"" << lpApplicationName << "\"\n";
-//            exit(1);
-//        }
+        memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
+        memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
 
-//        std::cout << "Started program \"" << lpApplicationName << "\" successfully\n";
+        // Create the process
+        if (!CreateProcess(lpApplicationName,
+                           NULL, NULL, NULL,
+                           NULL, NULL, NULL, NULL,
+                           lpStartupInfo,
+                           lpProcessInformation
+                           )
+                ) {
+            std::cerr << "Uh-Oh! CreateProcess() failed to start program \"" << lpApplicationName << "\"\n";
+            exit(1);
+        }
 
+        std::cout << "Started program \"" << lpApplicationName << "\" successfully\n";
+
+        */
 
 
 #else
