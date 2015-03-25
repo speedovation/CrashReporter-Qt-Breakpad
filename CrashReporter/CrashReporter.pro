@@ -68,12 +68,12 @@ QMAKE_LFLAGS +=  -std=c++11
 SOURCES += \
     main.cpp\
      $$PWD/CrashReporterWidget.cpp \
-    HttpRequestWorker.cpp
+    $$PWD/HttpRequestWorker.cpp
 
 HEADERS  += \
-    $$PWD/../../../version.h \
+    $$PWD/../../version.h \
     $$PWD/CrashReporterWidget.h \
-    HttpRequestWorker.h
+    $$PWD/HttpRequestWorker.h
 
 FORMS += \
     $$PWD/CrashReporterWidget.ui
