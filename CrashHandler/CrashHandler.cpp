@@ -96,7 +96,7 @@ namespace CrashManager
 #ifdef Q_OS_WIN
 
 
-    bool launcher(const wchar_t* program)
+    bool launcher(wchar_t* program)
     {
 
 
@@ -142,14 +142,16 @@ namespace CrashManager
 
         //  CreateProcess(NULL, szCmdline, /*...*/);
 
-        if ( !CreateProcess(NULL, (LPWSTR)program, 0, FALSE, 0, 0, 0, 0, &si, &pi) )
+        if ( !CreateProcess(NULL, program , 0, FALSE, 0,
+                            CREATE_DEFAULT_ERROR_MODE | CREATE_NO_WINDOW | DETACHED_PROCESS,
+                            0, 0, &si, &pi) )
         {
             std::cerr << "CreateProcess failed (" << GetLastError() << ").\n";
         }
         else
         {
-            std::cout << "Waiting on process for 5 seconds.." << std::endl;
-            WaitForSingleObject(pi.hProcess, 5 * 1000);
+            //std::cout << "Waiting on process for 5 seconds.." << std::endl;
+           // WaitForSingleObject(pi.hProcess, 5 * 1000);
             /*
                if ( TerminateProcess(pi.hProcess, 0) ) // Evil
                    cout << "Process terminated!";
@@ -272,7 +274,6 @@ namespace CrashManager
         */
 
 
-        char* path;
 
 #ifdef defined(Q_OS_LINUX)
         path =  CrashHandlerPrivate::pHandler->minidump_descriptor().path()
@@ -287,19 +288,17 @@ namespace CrashManager
 
         wcscpy( wpath, program);
 
+        wcscat( wpath, L" ");
         wcscat( wpath, _dump_dir );
         wcscat( wpath, L"/" );
         wcscat( wpath, _minidump_id );
-        wcscat( wpath, L".dmp\"" );
+        wcscat( wpath, L".dmp" );
 
-        //wcstombs(path,wpath, sizeof(path) );
+        char* path;
+        wcstombs(path,wpath, sizeof(path) );
 
 
-
-         //qDebug( path );
-         //qDebug( program );
-
-         launcher(wpath);
+        launcher(wpath);
 #endif
 
         return CrashHandlerPrivate::bReportCrashesToSystem ? success : true;
