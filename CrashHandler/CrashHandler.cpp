@@ -102,8 +102,8 @@ namespace CrashManager
 
 #ifdef Q_OS_WIN
 
-        #ref http://stackoverflow.com/questions/1067789/how-to-create-a-process-in-c-on-windows
-        SHELLEXECUTEINFO shExecInfo;
+        //ref http://stackoverflow.com/questions/1067789/how-to-create-a-process-in-c-on-windows
+       /* SHELLEXECUTEINFO shExecInfo;
 
         shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
 
@@ -117,6 +117,7 @@ namespace CrashManager
         shExecInfo.hInstApp = NULL;
 
         ShellExecuteEx(&shExecInfo);
+        */
 
 
 
@@ -126,7 +127,7 @@ namespace CrashManager
         si.cb = sizeof si;
 
         PROCESS_INFORMATION pi = {};
-        const TCHAR* target = _T("c:\\WINDOWS\\system32\\calc.exe");
+        const TCHAR* target = _T(program);
 
         if ( !CreateProcess(target, 0, 0, FALSE, 0, 0, 0, 0, &si, &pi) )
         {
@@ -147,33 +148,33 @@ namespace CrashManager
             CloseHandle(pi.hThread);
         }
 
-        cin.sync();
-        cin.ignore();
+       // cin.sync();
+       // cin.ignore();
 
 
         //ALSO
 
-        LPCTSTR lpApplicationName = "C:/Windows/System32/cmd.exe"; /* The program to be executed */
+//        LPCTSTR lpApplicationName = program; /* The program to be executed */
 
-        LPSTARTUPINFO lpStartupInfo;
-        LPPROCESS_INFORMATION lpProcessInfo;
+//        LPSTARTUPINFO lpStartupInfo;
+//        LPPROCESS_INFORMATION lpProcessInfo;
 
-        memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
-        memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
+//        memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
+//        memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
 
-        /* Create the process */
-        if (!CreateProcess(lpApplicationName,
-                           NULL, NULL, NULL,
-                           NULL, NULL, NULL, NULL,
-                           lpStartupInfo,
-                           lpProcessInformation
-                           )
-                ) {
-            std::cerr << "Uh-Oh! CreateProcess() failed to start program \"" << lpApplicationName << "\"\n";
-            exit(1);
-        }
+//        /* Create the process */
+//        if (!CreateProcess(lpApplicationName,
+//                           NULL, NULL, NULL,
+//                           NULL, NULL, NULL, NULL,
+//                           lpStartupInfo,
+//                           lpProcessInformation
+//                           )
+//                ) {
+//            std::cerr << "Uh-Oh! CreateProcess() failed to start program \"" << lpApplicationName << "\"\n";
+//            exit(1);
+//        }
 
-        std::cout << "Started program \"" << lpApplicationName << "\" successfully\n";
+//        std::cout << "Started program \"" << lpApplicationName << "\" successfully\n";
 
 
 
@@ -248,7 +249,18 @@ namespace CrashManager
         */
 
 
-        launcher(CrashHandlerPrivate::reporter_,CrashHandlerPrivate::pHandler->minidump_descriptor().path());
+        const char* path;
+
+#ifdef defined(Q_OS_LINUX)
+        path =  CrashHandlerPrivate::pHandler->minidump_descriptor().path()
+#elif defined(Q_OS_WIN)
+         path = dump_dir + "/" + minidump_id  + ".dmp";
+
+         qDebug("path" + path );
+#endif
+
+
+        launcher(CrashHandlerPrivate::reporter_,path);
 
 
 
