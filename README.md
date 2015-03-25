@@ -1,29 +1,54 @@
-[![](https://img.shields.io/badge/Release-Not%20ready-yellow.svg?style=flat-square)](http://kineticwing.com)
+[![](https://img.shields.io/badge/Alpha-Release-green.svg?style=flat-square)](http://kineticwing.com)
 
 ## CrashReporter for Qt Apps
 After getting frustated to get crash reporter (or with proper license). I decided to create one. This is result.
 
-Under dev. Not ready yet. Soon it will be. Stay tuned.
+### Download
+Clone repo or download from releases.
+
+### How to use
+
+* Step 1: Include Header in app. Create version.h from sample_version.h file which suits your app.
+```
+#include "version.h"
+#include "CrashHandler.h"
+```
+
+* Step 2: Init Crash Handler
+```
+CrashManager::CrashHandler::instance()->Init( QDir::tempPath());
+```
+
+* Step 3: Open CrashRepoter pro file(Qt Project) and build executable out of it. Put it in same dir of App executable.
+
+* Step 4: Compile App.
+
+* Step 5: Crash will open crashreporter.
+
+That's it. :)
+
 
 ### Components
+* **CrashReporter** - Support features like Send report with email,desc and dmp file to server, restart app.
+* **CrashHandler**  - Add inside Qt App. It will create crash report and trigger crash reporter automatically.
 * **breakpad** - Google breakpad library ( BSD 3 license)
-* **CrashReporter** - It will support features like send report,create github issue.
-* **CrashHandler** - Need to add inside Qt App. It will create crash report and trigger crash reporter. As a base I've used work of [breakpad-qt](https://github.com/AlekSi/breakpad-qt) which is under BSD-2.
-
-### Working
-* Crash reporter features like send report, create issue.
-
-### Finished
-* Crash reporter
-* Server side done. Dmp file upload and send mail is also done.
+* **WebInterface** - Receives dmp file, email, desc and sends email to user.
 
 ### TODO
+* Tests
 * Examples
-* Handler
 * Add screenshots
 * Share web server code for uploading dmp file and send mail to developers
 * Any WIKI page about how easy to use breakpad with Qt.
 * Enable create issue button in crash reporter
 
+For all TODOs I'm pretty much rely of PULL requests so make one and contribute back.
+
 ### License
 * Apache 2.0 license
+
+### Finished
+* Crash reporter
+* Server side done. Dmp file upload and send mail is also done.
+* Crash Handler
+* WebInterface
