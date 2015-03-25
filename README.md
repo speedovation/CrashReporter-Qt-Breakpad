@@ -4,7 +4,7 @@
 After getting frustated to get crash reporter (or with proper license). I decided to create one. This is result.
 
 ### Download
-Clone repo or download from releases.
+Clone repo or download from releases. [![](https://img.shields.io/badge/Download_Alpha-Release-green.svg?style=flat-square)](https://github.com/speedovation/CrashReporter-Qt-Breakpad/archive/v1.0.1.alpha.tar.gz)
 
 ### How to use
 
