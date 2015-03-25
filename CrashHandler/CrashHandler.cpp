@@ -41,6 +41,7 @@
 
 #if defined(Q_OS_MAC)
 
+#include <string.h>
 #include "client/mac/handler/exception_handler.h"
 
 #elif defined(Q_OS_LINUX)
@@ -198,8 +199,8 @@ namespace CrashManager
 
         //Cout is not visible in qtcreator output window..may be QtC.. bug or I don't know
         //Visible on terminal output
-        std::cout << "CrashReporter: "   << CrashHandlerPrivate::reporter_
-                  << "Dmppath: "      << CrashHandlerPrivate::pHandler->minidump_descriptor().path();
+        std::cout << "CrashReporter: "   << program
+                  << "Dmppath: "      << path;
 
         pid_t pid = fork(); /* Create a child process */
 
@@ -212,7 +213,7 @@ namespace CrashManager
 
 
 
-                execl(program,program, CrashHandlerPrivate::pHandler->minidump_descriptor().path(),(char*) 0 ); /* Execute the program */
+                execl(program,program, path,(char*) 0 ); /* Execute the program */
                 std::cerr << "Uh-Oh! execl() failed!";
                 /* execl doesn't return unless there's an error */
                 //qApp->quit();
@@ -260,7 +261,7 @@ namespace CrashManager
         Creating QString's, using qDebug, etc. - everything is crash-unfriendly.
         */
 
-
+ char* path;
 
 #ifdef defined(Q_OS_LINUX)
         path =  CrashHandlerPrivate::pHandler->minidump_descriptor().path()
@@ -281,11 +282,21 @@ namespace CrashManager
         wcscat( wpath, _minidump_id );
         wcscat( wpath, L".dmp" );
 
-        char* path;
+
         wcstombs(path,wpath, sizeof(path) );
 
 
         launcher(wpath);
+#elif defined(Q_OS_MAC)
+
+         strcpy (path,_dump_dir);
+         strcat (path,"/");
+         strcat (path,_minidump_id);
+         strcat (path,".dmp");
+
+         launcher(CrashHandlerPrivate::reporter_,path);
+
+
 #endif
 
         return CrashHandlerPrivate::bReportCrashesToSystem ? success : true;
