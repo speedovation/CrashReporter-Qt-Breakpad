@@ -3,6 +3,9 @@
 ## CrashReporter for Qt Apps
 After getting frustated to get crash reporter (or with proper license). I decided to create one. This is result.
 
+![Crash Reporter Screenshot](http://i375.photobucket.com/albums/oo193/codeyash/KiWiCrashReporter_zps1yybtcjx.png)
+
+
 ### Download
 Clone repo or download from releases. [![](https://img.shields.io/badge/Download-Latest_Release-green.svg?style=flat-square)](https://github.com/speedovation/CrashReporter-Qt-Breakpad/releases)
 
