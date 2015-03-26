@@ -1,4 +1,4 @@
-[![](https://img.shields.io/badge/Alpha-Release-green.svg?style=flat-square)](http://kineticwing.com)
+[![](https://img.shields.io/badge/Beta-Release-green.svg?style=flat-square)](http://kineticwing.com)
 
 ## CrashReporter for Qt Apps
 After getting frustated to get crash reporter (or with proper license). I decided to create one. This is result.
